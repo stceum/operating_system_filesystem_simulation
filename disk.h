@@ -5,6 +5,12 @@
 #define MAX_DISK_NAME_LEN 16 // 最长磁盘名长度(模拟磁盘的文件名长度)
 #define MAX_SECTOR_NAME_LEN 8 //最长分区名
 #define MAX_PARTIOTION_NUMBER 4 //最大分区数
+typedef struct partition
+{
+    uint32_t start_sector_no;            // 起始扇区号
+    uint32_t sector_count_per_partition; // 扇区长度
+    char partition_name[MAX_SECTOR_NAME_LEN];
+}partition;
 
 struct disk
 {
@@ -14,12 +20,7 @@ struct disk
     partition* partitions[MAX_PARTIOTION_NUMBER];
 };
 
-struct partition
-{
-    uint32_t start_sector_no;            // 起始扇区号
-    uint32_t sector_count_per_partition; // 扇区长度
-    char partition_name[MAX_SECTOR_NAME_LEN];
-};
+
 
 /*
  * 创建磁盘的函数
