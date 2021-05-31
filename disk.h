@@ -6,20 +6,20 @@
 #define MAX_SECTOR_NAME_LEN 8 //最长分区名
 #define MAX_PARTIOTION_NUMBER 4 //最大分区数
 
-struct disk
+typedef struct virtual_disk
 {
     char disk_name[MAX_DISK_NAME_LEN];
     uint32_t disk_volumn;                           // 磁盘容量
     int current_partition_count;                    // 当前磁盘分区数
-    partition* partitions[MAX_PARTIOTION_NUMBER];
-};
+    disk_partition* partitions[MAX_PARTIOTION_NUMBER];
+}virtual_disk;
 
-struct partition
+typedef struct disk_partition
 {
     uint32_t start_sector_no;            // 起始扇区号
     uint32_t sector_count_per_partition; // 扇区长度
     char partition_name[MAX_SECTOR_NAME_LEN];
-};
+}disk_partition;
 
 /*
  * 创建磁盘的函数
