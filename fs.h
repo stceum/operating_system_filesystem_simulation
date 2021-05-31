@@ -7,9 +7,4 @@
 #define SECTOR_SIZE 512         // 每个扇区512字节 
 #define BLOCK_SIZE SECTOR_SIZE  // 一个扇区一个块
 
-enum file_types {
-    FT_UNKNOWN, //其他
-    FT_REGULAR, //文件
-    FT_DIRCTORY //目录
-}
 #endif
