@@ -8,8 +8,8 @@
 
 typedef struct disk_partition
 {
-    uint32_t start_sector_no;               // 起始扇区号
-    uint32_t sector_count_per_partition;    // 扇区长度
+    uint32_t start_sector_no;            // 起始扇区号
+    uint32_t sector_count_per_partition; // 每个分区的扇区数
     char partition_name[MAX_SECTOR_NAME_LEN];
 }disk_partition;
 
@@ -31,10 +31,10 @@ int create_disk(char* disk_name, uint32_t disk_volumn);
 
 /* 
  * 对磁盘进行分区
- * 传入硬盘名，分区数，每个分区的大小的数组，以及每个分区的名字的数组
+ * 传入硬盘名，分区数，每个分区的大小（字节数），以及每个分区的名字的数组
  * 将"分区表"写入create_disk的预留区域
  * 成功返回 1/true 失败返回 0/false
  */
-int create_partitions(char* disk_name, int partition_num, int** partitions_size, char** partitions_name);
+int create_partitions(char* disk_name, int partition_num, int* partitions_size, char** partitions_name);
 
 #endif
