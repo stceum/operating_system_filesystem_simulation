@@ -1,9 +1,10 @@
 #ifndef DIR_H
 #define DIR_H
-//目录 目录项 用于用户/程序查找文件
+
 #include "inode.h"
 #define MAX_FILENAME_LEN 16
 
+// 目录 目录项 用于用户/程序查找文件
 struct dir {
 
 };
