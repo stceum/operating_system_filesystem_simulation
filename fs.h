@@ -7,4 +7,7 @@
 #define SECTOR_SIZE 512         // 每个扇区512字节 
 #define BLOCK_SIZE SECTOR_SIZE  // 一个扇区一个块
 
+#include "disk.h"
+/* 将 v_disk 的 d_partition 分区*/
+int partition_format(virtual_disk* v_disk, disk_partition * d_partition);
 #endif

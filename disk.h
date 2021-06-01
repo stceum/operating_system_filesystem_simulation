@@ -37,4 +37,8 @@ int create_disk(char* disk_name, uint32_t disk_volumn);
  */
 int create_partitions(char* disk_name, int partition_num, int* partitions_size, char** partitions_name);
 
+/*
+ * 读取磁盘，获取该磁盘的各分区信息
+ */
+virtual_disk read_disk(char* disk_name);
 #endif
