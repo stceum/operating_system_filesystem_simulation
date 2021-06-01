@@ -56,9 +56,9 @@ int create_partitions(char *disk_name, int partition_num, int *partitions_size, 
             else
             {
                 disk.partitions[i].start_sector_no = start_sector_no;
-                disk.partitions[i].sector_count_per_partition = partitions_size[i] / SECTOR_SIZE;
+                disk.partitions[i].sector_count = partitions_size[i] / SECTOR_SIZE;
                 strcpy(disk.partitions[i].partition_name, partitions_name[i]);
-                start_sector_no = start_sector_no + disk.partitions[i].sector_count_per_partition;
+                start_sector_no = start_sector_no + disk.partitions[i].sector_count;
             }
         }
         fp.seekp(0, ios::beg);

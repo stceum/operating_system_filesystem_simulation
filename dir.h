@@ -11,16 +11,16 @@ struct dir {
     uint8_t dir_buf[512]; // 目录的数据缓存
 };
 
-struct dir_entry {
-    char name[MAX_FILENAME_LEN];    // 文件名
-    uint32_t i_no;              // inode 指针
-    file_type ft;                   // 文件类型
-};
-
 enum file_type {
     FT_UNKNOWN, //其他
     FT_REGULAR, //文件
     FT_DIRCTORY //目录
-}
+};
+
+typedef struct dir_entry {
+    char name[MAX_FILENAME_LEN];    // 文件名
+    uint32_t i_no;                  // inode 指针
+    file_type ft;                   // 文件类型
+}dir_entry;
 
 #endif
