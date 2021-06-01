@@ -8,6 +8,15 @@
 #define BLOCK_SIZE SECTOR_SIZE  // 一个扇区一个块
 
 #include "disk.h"
-/* 将 v_disk 的 d_partition 分区*/
-int partition_format(virtual_disk* v_disk, disk_partition * d_partition);
+#include <fstream>
+#include <cstring>
+
+/* 向 某个磁盘 的 某个地址 写入 数据 */
+int write_data_to_disk(virtual_disk *disk, uint32_t address, char* data);
+
+/* 从 某个磁盘 的 某个块号 读出 size 大小的数据 并返回指针 */
+char* read_data_from_disk(virtual_disk *disk, uint32_t address, size_t size);
+
+/* 将 v_disk 的第 partition_no 个分区格式化 (从0开始计数)*/
+int partition_format(virtual_disk* v_disk, int partition_no);
 #endif

@@ -6,10 +6,12 @@
 #define MAX_SECTOR_NAME_LEN 8   //最长分区名
 #define MAX_PARTIOTION_NUMBER 8 //最大分区数
 
+// todo 
+// 将 sector_count 修改为 sector_count
 typedef struct disk_partition
 {
     uint32_t start_sector_no;            // 起始扇区号
-    uint32_t sector_count_per_partition; // 每个分区的扇区数
+    uint32_t sector_count;              // 每个分区的扇区数
     char partition_name[MAX_SECTOR_NAME_LEN];
 }disk_partition;
 
