@@ -55,6 +55,7 @@ int create_partitions(char *disk_name, int partition_num, int *partitions_size, 
             }
             else
             {
+                disk.current_partition_count++;
                 disk.partitions[i].start_sector_no = start_sector_no;
                 disk.partitions[i].sector_count = partitions_size[i] / SECTOR_SIZE;
                 strcpy(disk.partitions[i].partition_name, partitions_name[i]);
@@ -68,9 +69,28 @@ int create_partitions(char *disk_name, int partition_num, int *partitions_size, 
     }
 }
 
+virtual_disk read_disk(char* disk_name)
+{
+    ifstream fp;
+    fp.open(disk_name, ios::in | ios::binary);
+    if (!fp.is_open())
+    {
+        cout << "ERROR: cannot open the file" << endl;
+    }
+    else
+    {
+        virtual_disk disk;
+        fp.read(reinterpret_cast<char *>(&disk), sizeof(disk));
+        fp.close();
+        return disk;
+    }
+    
+}
+
 // int main()
 // {
 //     char *disk_name = "testdisk";
+    
 //     uint32_t disk_volumn = 536870912;
 //     create_disk(disk_name, disk_volumn);
 //     int partition_num = 8;
@@ -82,5 +102,9 @@ int create_partitions(char *disk_name, int partition_num, int *partitions_size, 
 //     }
 //     char *name[8] = { (char*)"ABC", (char*)"ABC", (char*)"ABC", (char*)"ABC", (char*)"ABC", (char*)"ABC", (char*)"ABC", (char*)"ABC"}; 
 //     create_partitions(disk_name,partition_num,partitions_size,name);
+
+//     virtual_disk disk;
+//     disk = read_disk(disk_name);
+//     cout << disk.current_partition_count << " " << disk.disk_volumn << " " << disk.disk_name << endl;
 //     return 0;
 // }
