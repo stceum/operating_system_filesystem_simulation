@@ -36,7 +36,7 @@ int create_partitions(char *disk_name, int partition_num, int *partitions_size, 
 
     fstream fp;
     uint32_t start_sector_no = 1;
-    fp.open(disk_name, ios::in | ios::out);
+    fp.open(disk_name, ios::binary | ios::in | ios::out);
     if (!fp.is_open())
     {
         cout << "ERROR: cannot open the file" << endl;

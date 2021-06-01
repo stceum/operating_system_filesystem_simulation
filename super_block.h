@@ -4,7 +4,7 @@
 #include "fs.h"
 #include <stdint.h>
 //超级块头文件 超级块一般放在第二扇区
-typedef struct super_block
+typedef struct __attribute__ ((packed)) super_block
 {
     uint32_t magic;                 // 用来标识该文件系统
     uint32_t block_count;           // 该超级块所在文件系统的块数
@@ -26,6 +26,6 @@ typedef struct super_block
 
     // 13*32/8 加上460字节,凑够512字节
     uint8_t  pad[BLOCK_SIZE - 13 * 32 / 8];
-}superblock __attribute__ ((packed));
+}superblock;
 
 #endif
