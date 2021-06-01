@@ -68,6 +68,11 @@ int create_partitions(char *disk_name, int partition_num, int *partitions_size, 
     }
 }
 
+virtual_disk read_disk(char* disk_name)
+{
+    
+}
+
 // int main()
 // {
 //     char *disk_name = "testdisk";
