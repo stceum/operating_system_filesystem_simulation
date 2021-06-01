@@ -71,7 +71,7 @@ int partition_format(virtual_disk* v_disk, int partition_no) {
     sb.start_lba = start_lba;
     // 引导块 超级块 空闲位块位图 inode位图 inode数组 根目录 空闲块区域
     sb.block_bitmap_lba = start_lba + 2;
-    sb.block_bitmap_lbc = ;
+    sb.block_bitmap_lbc = block_bitmap_lbc;
 
     sb.inode_bitmap_lba = sb.block_bitmap_lba + sb.block_bitmap_lbc;
     sb.inode_bitmap_lbc = inode_bitmap_lbc;
@@ -107,11 +107,11 @@ int partition_format(virtual_disk* v_disk, int partition_no) {
 
 int main() {
     virtual_disk test_d;
-    test_d.disk_volumn = 536870912;
+    test_d.disk_volumn = 512 * (2 ^ 20);
     strcpy(test_d.disk_name, "helloDisk");
     test_d.current_partition_count = 2;
     strcpy(test_d.partitions[1].partition_name, "helloP");
-    test_d.partitions[1].sector_count = 102400;
-    test_d.partitions[1].start_sector_no = 2048;
+    test_d.partitions[1].sector_count = 2 ^ 28;
+    test_d.partitions[1].start_sector_no = 2 ^ 28;
     partition_format(&test_d, 1);
 }
