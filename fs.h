@@ -12,11 +12,14 @@
 #include <cstring>
 
 /* 向 某个磁盘 的 某个地址 写入 数据 */
-int write_data_to_disk(virtual_disk *disk, uint32_t address, char* data, size_t bc);
+int write_blocks_to_disk(virtual_disk *disk,  uint32_t lba, char* data, size_t bc);
 
 /* 从 某个磁盘 的 某个块号 读出 size 大小的数据 并返回指针 */
-char* read_data_from_disk(virtual_disk *disk, uint32_t address, size_t byte_size);
+char* read_blocks_from_disk(virtual_disk *disk,  uint32_t lba, size_t bc);
 
 /* 将 v_disk 的第 partition_no 个分区格式化 (从0开始计数)*/
 int partition_format(virtual_disk* v_disk, int partition_no);
+
+/* 文件系统初始化 */
+void fs_init(virtual_disk* v_disk);
 #endif

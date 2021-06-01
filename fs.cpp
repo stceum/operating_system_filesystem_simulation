@@ -8,10 +8,12 @@
 #define SUCCESS 1
 #define FAIL 0
 
-int write_data_to_disk(virtual_disk *disk, uint32_t address, char* data,size_t bc) {
+int write_blocks_to_disk(virtual_disk *disk, uint32_t lba, char* data,size_t bc) {
     std::fstream fs(disk->disk_name, std::ios::binary | std::ios::out | std::ios::in);
     if (fs) {
-        fs.seekp(address, std::ios::beg);
+        // std::cout << std::hex;
+        // std::cout << "======" << (lba * BLOCK_SIZE) << std::endl;
+        fs.seekp(lba * BLOCK_SIZE, std::ios::beg);
     	fs.write(data, bc * BLOCK_SIZE);
     	fs.close();
         return SUCCESS;
@@ -20,12 +22,14 @@ int write_data_to_disk(virtual_disk *disk, uint32_t address, char* data,size_t b
     }
 }
 
-char* read_data_from_disk(virtual_disk *disk, uint32_t address, size_t byte_size) {
+char* read_blocks_from_disk(virtual_disk *disk, uint32_t lba, size_t bc) {
     std::fstream fs(disk->disk_name, std::ios::binary | std::ios::out | std::ios::in);
     if (fs) {
-        fs.seekp(address, std::ios::beg);
-        char* data = (char*)malloc(byte_size);
-    	fs.read(data, byte_size);
+        // std::cout << std::hex;
+        // std::cout << "======" << (lba * BLOCK_SIZE) << std::endl;
+        fs.seekp(lba * BLOCK_SIZE, std::ios::beg);
+        char* data = (char*)malloc(bc * BLOCK_SIZE);
+    	fs.read(data, bc * BLOCK_SIZE);
     	fs.close();
         return data;
     } else {
@@ -100,7 +104,7 @@ int partition_format(virtual_disk* v_disk, int partition_no) {
 
     /* 1 将超级块写入磁盘 */
     // 写入 第1块
-    if(write_data_to_disk(v_disk, (start_lba + 1) * BLOCK_SIZE, (char *)&sb, sizeof(sb))) {
+    if(write_blocks_to_disk(v_disk, start_lba + 1, (char *)&sb, sizeof(sb))) {
         std::cout << "Super block has been written to disk!" << std::endl;
     } else {
         std::cout << "Super block failed to write to disk!" << std::endl;
@@ -129,7 +133,7 @@ int partition_format(virtual_disk* v_disk, int partition_no) {
     while (bit_idx <= block_bitmap_last_bit) {
         buf[block_bitmap_last_byte] &= ~ (1 << bit_idx++);
     }
-    if(write_data_to_disk(v_disk, sb.block_bitmap_lba, (char *)buf, sb.block_bitmap_lbc)) {
+    if(write_blocks_to_disk(v_disk, sb.block_bitmap_lba, (char *)buf, sb.block_bitmap_lbc)) {
         std::cout << "Block bitmap has been written to disk!" << std::endl;
     } else {
         std::cout << "Block bitmap failed to write to disk!" << std::endl;
@@ -140,7 +144,7 @@ int partition_format(virtual_disk* v_disk, int partition_no) {
     memset(buf, 0, buf_size);  // 清空缓存区域
     buf[0] |= 0x1;             // 第 0 个 inode 分给根目录
     // 4096 个 inode 正好一个块
-    if(write_data_to_disk(v_disk, sb.inode_bitmap_lba, (char *)buf, sb.inode_bitmap_lbc)) {
+    if(write_blocks_to_disk(v_disk, sb.inode_bitmap_lba, (char *)buf, sb.inode_bitmap_lbc)) {
         std::cout << "Inode bitmap has been written to disk!" << std::endl;
     } else {
         std::cout << "Inode bitmap failed to write to disk!" << std::endl;
@@ -154,7 +158,7 @@ int partition_format(virtual_disk* v_disk, int partition_no) {
     i->i_size = sb.dir_entry_size * 2; // 根目录只有 . 和 ..
     i->i_no = 0;
     i->i_block[0] = sb.data_start_lba;
-    if(write_data_to_disk(v_disk, sb.inode_table_lba, (char *)buf, sb.inode_table_lbc)) {
+    if(write_blocks_to_disk(v_disk, sb.inode_table_lba, (char *)buf, sb.inode_table_lbc)) {
         std::cout << "Inode table has been written to disk!" << std::endl;
     } else {
         std::cout << "Inode table failed to write to disk!" << std::endl;
@@ -175,7 +179,7 @@ int partition_format(virtual_disk* v_disk, int partition_no) {
     memcpy(de_ptr->name, "..", 2);
     de_ptr->i_no = 0;
     de_ptr->ft = FT_DIRCTORY;
-    if(write_data_to_disk(v_disk, sb.data_start_lba, (char *)buf, 1)) {
+    if(write_blocks_to_disk(v_disk, sb.data_start_lba, (char *)buf, 1)) {
         std::cout << "Dir Root has been written to disk!" << std::endl;
     } else {
         std::cout << "Dir Root failed to write to disk!" << std::endl;
@@ -185,12 +189,29 @@ int partition_format(virtual_disk* v_disk, int partition_no) {
     return SUCCESS;
 }
 
+void fs_init(virtual_disk* v_disk) {
+    std::cout << "Searching filesystem on " << v_disk->disk_name << std::endl;
+    for (int i = 0; i < v_disk->current_partition_count; i++) {
+        super_block* dp =(super_block*)read_blocks_from_disk(v_disk, v_disk->partitions[i].start_sector_no + 1, 1); 
+        if (dp->magic == 0x19590318) {
+            std::cout << v_disk->partitions[i].partition_name << " has filesystem!" << std::endl;
+        } else {
+            std::cout << v_disk->partitions[i].partition_name << " has not filesystem!" << std::endl;
+            std::cout << "Initialing..." << std::endl;
+            partition_format(v_disk, i);
+        }
+        free(dp);
+    }
+    
+}
+
 // int main() {
 //     // create_disk((char*)"test_disk", 512 * (1048576));
-//     // int sizes[2] = {268435456, 268435456};
-//     // char *names[8] = {(char*)"a", (char*)"b"};
+//     // int sizes[2] = {268173304, 268173304};
+//     // char *names[8] = {(char*)"p1", (char*)"p2"};
 //     // create_partitions((char*)"test_disk", 2, sizes, names);
 
 //     virtual_disk test_d = read_disk((char*)"test_disk");
-//     partition_format(&test_d, 1);
+//     // partition_format(&test_d, 1);
+//     fs_init(&test_d);
 // }
