@@ -1,9 +1,7 @@
 #include "disk.h"
 #include "fs.h"
-#include <stdio.h>
-#include <stdlib.h>
 #include <iostream>
-#include <string.h>
+#include <cstring>
 #include <fstream>
 using namespace std;
 
@@ -84,7 +82,6 @@ virtual_disk read_disk(char* disk_name)
         fp.close();
         return disk;
     }
-    
 }
 
 // int main()

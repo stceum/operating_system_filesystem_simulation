@@ -1,6 +1,6 @@
 CC := g++
 CFLAGS := -g
-TARGET := test_file
+TARGET := test_main
 SRCS := $(wildcard *.cpp)
 OBJS := $(patsubst %cpp,%o,$(SRCS))
 all:$(TARGET)

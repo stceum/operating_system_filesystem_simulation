@@ -13,7 +13,6 @@
 #include <fstream>
 
 #include "bitmap.h"
-#include "dir.h"
 #include "disk.h"
 #include "list.h"
 #include "super_block.h"
@@ -29,6 +28,12 @@ typedef struct current_partition {
 } current_partition;
 
 extern current_partition* cur_part;
+
+enum file_type {
+    FT_UNKNOWN, //其他
+    FT_REGULAR, //文件
+    FT_DIRECTORY //目录
+};
 
 /* 打开文件的选项 */
 enum oflags {
@@ -69,10 +74,25 @@ int read_blocks_from_disk_unsafe(virtual_disk* disk, uint32_t lba, char* data,
                                  size_t bc);
 /* 将 v_disk 的第 partition_no 个分区格式化 (从0开始计数)*/
 int partition_format(virtual_disk* v_disk, int partition_no);
-void fs_init(virtual_disk* v_disk); /* 文件系统初始化 */
+void fs_init(virtual_disk* v_disk, int default_partition_no); /* 文件系统初始化 */
 int mount_partition(virtual_disk* v_disk,
                     int partition_no); /* "挂载"某个分区 */
 
 int32_t path_depth_cnt(char* pathname);
+int32_t sys_open(const char* pathname, uint8_t flags);
+int32_t sys_close(int32_t fd);
+int32_t sys_write(int32_t fd, const void* buf, uint32_t count);
+int32_t sys_read(int32_t fd, void* buf, uint32_t count);
+int32_t sys_lseek(int32_t fd, int32_t offset, uint8_t whence);
+int32_t sys_unlink(const char* pathname);
+int32_t sys_mkdir(const char* pathname);
+struct dir* sys_opendir(const char* pathname);
+int32_t sys_closedir(struct dir* dir);
+struct dir_entry* sys_readdir(struct dir* dir);
+void sys_rewinddir(struct dir* dir);
+int32_t sys_rmdir(const char* pathname);
+char* sys_getcwd(char* buf, uint32_t size);
+int32_t sys_chdir(const char* path);
+int32_t sys_stat(const char* path, struct stat* buf);
 
 #endif

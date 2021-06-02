@@ -1,8 +1,7 @@
 #include "dir.h"
 #include "inode.h"
 #include "file.h"
-#include <stdio.h>
-#include <stdlib.h>
+#include <cstdlib>
 #include <iostream>
 
 using namespace std;
@@ -132,10 +131,11 @@ bool sync_dir_entry(struct dir *parent_dir, struct dir_entry *p_de, void *io_buf
     uint32_t dir_size = dir_inode->i_size;
     uint32_t dir_entry_size = cur_part->sb->dir_entry_size;
 
+    cout << dir_size << endl << dir_entry_size << endl;
     if(dir_size % dir_entry_size != 0)// dir_size应该是dir_entry_size的整数倍
     {
         cout << "ERROR: dir_size is not an integer multiple of dir_entry_size " << endl;
-        return ;
+        return false;
     }
 
     uint32_t dir_entrys_per_sec = (512 / dir_entry_size); // 每扇区最大的目录项数目
@@ -302,7 +302,7 @@ bool delete_dir_entry(struct current_partition *part, struct dir *pdir, uint32_t
                     {        
                         if(dir_entry_found != NULL){
                             cout<<"dir_entry_found is not NULL"<<endl;
-                            return;
+                            return false;
                         }                            // 如果找到此i结点,就将其记录在dir_entry_found
                         dir_entry_found = dir_e + dir_entry_idx;
                         /* 找到后也继续遍历,统计总共的目录项数 */
@@ -322,7 +322,7 @@ bool delete_dir_entry(struct current_partition *part, struct dir *pdir, uint32_t
         /* 在此扇区中找到目录项后,清除该目录项并判断是否回收扇区,随后退出循环直接返回 */
         if(dir_entry_cnt < 1){
             cout<<"ERROR:dir_entry_cnt < 1"<<endl;
-            return;
+            return false;
         }
         /* 除目录第1个扇区外,若该扇区上只有该目录项自己,则将整个扇区回收 */
         if (dir_entry_cnt == 1 && !is_dir_first_block)
@@ -351,7 +351,7 @@ bool delete_dir_entry(struct current_partition *part, struct dir *pdir, uint32_t
                 }
                 if(indirect_blocks < 1){ // 包括当前间接块
                     cout<<"ERROR:indirect_blocks < 1"<<endl;
-                    return;
+                    return false;
                 }
 
                 if (indirect_blocks > 1)
@@ -442,7 +442,7 @@ struct dir_entry *dir_read(struct dir *dir)
                 }
                 if(cur_dir_entry_pos != dir->dir_pos){
                     cout << "cur_dir_entry_pos != dir->dir_pos" << endl;
-                    return;
+                    return (dir_entry*)(0);
                 }
                 dir->dir_pos += dir_entry_size; // 更新为新位置,即下一个返回的目录项地址
                 return dir_e + dir_entry_idx;
@@ -472,7 +472,7 @@ int32_t dir_remove(struct dir *parent_dir, struct dir *child_dir)
     {
         if(child_dir_inode->i_block[block_idx] != 0){
             cout << "child_dir_inode->i_block[block_idx] != 0" << endl;
-            return;
+            return false;
         }
         block_idx++;
     }

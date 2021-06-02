@@ -384,8 +384,8 @@ int32_t file_read(struct file *file, void *buf, uint32_t count)
     return bytes_read;
 }
 
-int main()
-{
+// int main()
+// {
     // int32_t fd_index = get_free_slot_in_file_table();
     // if(fd_index!=FAIL){
     //     int local_fd_idx = pcb_fd_install(fd_index);
@@ -411,4 +411,4 @@ int main()
     // else{
     //     cout<<"first error"<<endl;
     // }
-}
+// }
