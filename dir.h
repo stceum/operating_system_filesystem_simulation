@@ -18,9 +18,9 @@ enum file_type {
 };
 
 typedef struct dir_entry {
-    char name[MAX_FILENAME_LEN];    // 文件名
+    char filename[MAX_FILENAME_LEN];    // 文件名
     uint32_t i_no;                  // inode 指针
-    file_type ft;                   // 文件类型
+    file_type f_type;                   // 文件类型
 }dir_entry;
 
 #endif
