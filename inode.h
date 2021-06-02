@@ -2,6 +2,7 @@
 #define INODE_H
 
 #include <stdint.h>
+#include "fs.h"
 #include "list.h"
 
 // index node
@@ -24,6 +25,35 @@ typedef struct inode
     uint32_t i_block[13];
     list_elem inode_tag;
 }inode;
+
+/* 用来存储inode位置 */
+typedef struct inode_position
+{
+  bool two_blk;      // inode是否跨块
+  uint32_t lba;      // inode所在的块号
+  uint32_t off_size; // inode在块内的 字节 偏移量
+} inode_position;
+
+/* 初始化new_inode */
+void inode_init(uint32_t inode_no, inode* new_inode);
+
+/* 回收inode的数据块和inode本身 */
+void inode_release(current_partition* cp, uint32_t inode_no);
+
+/* 将硬盘分区part上的inode清空 */
+void inode_delete(current_partition* cp, uint32_t inode_no, void* io_buf);
+
+/* 关闭inode或减少inode的打开数 */
+void inode_close(inode* inode);
+
+/* 根据i结点号返回相应的i结点 */
+inode* inode_open(current_partition* cp, uint32_t inode_no) ;
+
+/* 将inode写入到分区part */
+void inode_sync(current_partition *cp, inode *inode,void *io_buf);
+
+/* 获取inode所在的块和块内的偏移量 */
+static void inode_locate(current_partition *cp, uint32_t inode_no,inode_position *inode_pos);
 
 
 #endif
