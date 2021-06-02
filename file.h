@@ -34,8 +34,13 @@ int32_t get_free_slot_in_file_table(void);
 /*把文件表中空闲的位置放入pcb中*/
 int32_t pcb_fd_install(int32_t file_table_free_slot);
 
+/*都是输入分区partiton，返回分配的i结点或者扇区地址*/
+int32_t inode_bitmap_alloc(struct current_partition* part);
+int32_t block_bitmap_alloc(struct current_partition* part);
 
-int32_t inode_bitmap_alloc(struct partition* part);
-int32_t block_bitmap_alloc(struct partition* part);
+/*同步位图到硬盘，同步bit_idx处的512字节*/
+void bitmap_sync(struct current_partition* part, uint32_t bit_idx, uint8_t btmp_type);
+
+
 
 #endif

@@ -4,3 +4,4 @@ test_disk
 disk
 *.o
 test_fs
+test_file

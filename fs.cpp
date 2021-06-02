@@ -217,6 +217,7 @@ current_partition mount_partition(virtual_disk* v_disk, int partition_no) {
     cp.inode_bitmap.bits = (uint8_t*)read_blocks_from_disk(v_disk, cp.sb->inode_bitmap_lba, cp.sb->inode_bitmap_lbc);
     list_init(&cp.open_inodes);
     std::cout << dp.partition_name << " mounted!" << std::endl;
+    return cp;
 }
 
 void fs_init(virtual_disk* v_disk) {
@@ -234,14 +235,14 @@ void fs_init(virtual_disk* v_disk) {
     }
 }
 
-int main() {
-    // create_disk((char*)"test_disk", 512 * (1048576));
-    // int sizes[2] = {268173304, 268173304};
-    // char *names[8] = {(char*)"p1", (char*)"p2"};
-    // create_partitions((char*)"test_disk", 2, sizes, names);
+// int main() {
+//     // create_disk((char*)"test_disk", 512 * (1048576));
+//     // int sizes[2] = {268173304, 268173304};
+//     // char *names[8] = {(char*)"p1", (char*)"p2"};
+//     // create_partitions((char*)"test_disk", 2, sizes, names);
 
-    virtual_disk test_d = read_disk((char*)"test_disk");
-    // partition_format(&test_d, 1);
-    fs_init(&test_d);
-    mount_partition(&test_d, 1);
-}
+//     virtual_disk test_d = read_disk((char*)"test_disk");
+//     // partition_format(&test_d, 1);
+//     fs_init(&test_d);
+//     mount_partition(&test_d, 1);
+// }
