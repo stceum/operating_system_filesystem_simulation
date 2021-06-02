@@ -118,7 +118,7 @@ int partition_format(virtual_disk* v_disk, int partition_no) {
 
     /* 1 将超级块写入磁盘 */
     // 写入 第1块
-    if(write_blocks_to_disk(v_disk, start_lba + 1, (char *)&sb, sizeof(sb))) {
+    if(write_blocks_to_disk(v_disk, start_lba + 1, (char *)&sb, 1)) {
         std::cout << "Super block has been written to disk!" << std::endl;
     } else {
         std::cout << "Super block failed to write to disk!" << std::endl;
