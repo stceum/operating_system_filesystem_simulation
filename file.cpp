@@ -33,10 +33,10 @@ int32_t pcb_fd_install(int32_t file_table_free_slot)
     pcb* cur = (pcb*)malloc(sizeof(pcb));
     init_pcb(cur);
     uint32_t local_fd_idx = 3; 
-    for (int i = 0; i < MAX_FILES_OPEN_PER_PROC; i++)
-    {
-        cout << cur->fd_table[i] << endl;
-    }
+    // for (int i = 0; i < MAX_FILES_OPEN_PER_PROC; i++)
+    // {
+    //     cout << cur->fd_table[i] << endl;
+    // }
     
     while (local_fd_idx < MAX_FILES_OPEN_PER_PROC) {
         if (cur->fd_table[local_fd_idx] == -1) {	// -1表示free_slot,可用
@@ -96,12 +96,14 @@ void bitmap_sync(struct current_partition* part, uint32_t bit_idx, uint8_t btmp_
         break;
     }
     write_blocks_to_disk(part->v_disk, sec_lba,(char*)bitmap_off, 1);
+    // read_blocks_from_disk_unsafe(part->v_disk, sec_lba,(char*)bitmap_off, 1);
+    // cout << bitmap_off <<endl;
+
 }
 
 int main()
 {
     int32_t fd_index = get_free_slot_in_file_table();
-    cout<<"1"<<endl;
     if(fd_index!=-1){
         int local_fd_idx = pcb_fd_install(fd_index);
         if(local_fd_idx != -1){
@@ -112,15 +114,15 @@ int main()
             current_partition* test_partition = &tmp;
             int bit_idx = inode_bitmap_alloc(test_partition);
             int btmp_type = block_bitmap_alloc(test_partition);
-            cout << "before" << endl;
             if(bit_idx==-1|btmp_type == -1)
             {
-                cout<<"error"<<endl;
+                cout<<"ERROR:inode or block is full"<<endl;
             }
             else
             {
                 bitmap_sync(test_partition,bit_idx,btmp_type);
-                cout << "correct" << endl;
+                
+                
             }
             
         }

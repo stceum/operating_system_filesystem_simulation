@@ -23,7 +23,7 @@ int bitmap_scan(struct bitmap* btmp, uint32_t cnt) {
 /* 1表示该位已分配,所以若为0xff,则表示该字节内已无空闲位,向下一字节继续找 */
       idx_byte++;
    }
-    if(idx_byte < btmp->btmp_bytes_len)
+    if(!(idx_byte < btmp->btmp_bytes_len))
     {
         std::cout << "ERROR:idx_byte < btmp->btmp_bytes_len" <<std::endl;
         return -2;
@@ -67,7 +67,7 @@ int bitmap_scan(struct bitmap* btmp, uint32_t cnt) {
 
 /* 将位图btmp的bit_idx位设置为value */
 void bitmap_set(struct bitmap* btmp, uint32_t bit_idx, int8_t value) {
-    if((value == 0) || (value == 1))
+    if((value != 0) && (value != 1))
     {
         std::cout << "ERROR:(value == 0) || (value == 1)" <<std::endl;
         return;
