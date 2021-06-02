@@ -41,6 +41,17 @@ int32_t block_bitmap_alloc(struct current_partition* part);
 /*同步位图到硬盘，同步bit_idx处的512字节*/
 void bitmap_sync(struct current_partition* part, uint32_t bit_idx, uint8_t btmp_type);
 
+/*创建文件，输入父目录，文件名，文件标志，返回文件标识符*/
+int32_t file_create(struct dir* parent_dir, char* filename, uint8_t flag);
+
+/* 从文件file中读取count个字节写入buf, 返回读出的字节数,若到文件尾则返回-1 */
+int32_t file_read(struct file* file, void* buf, uint32_t count);
+
+/* 关闭文件 */
+int32_t file_close(struct file *file);
+
+/* 打开编号为inode_no的inode对应的文件,若成功则返回文件描述符,否则返回-1 */
+int32_t file_open(uint32_t inode_no, uint8_t flag);
 
 
 #endif
