@@ -80,7 +80,8 @@ void bitmap_sync(struct current_partition* part, uint32_t bit_idx, uint8_t btmp_
     uint32_t off_sec = bit_idx / 4096;  // 本i结点索引相对于位图的扇区偏移量
     uint32_t off_size = off_sec * BLOCK_SIZE;  // 本i结点索引相对于位图的字节偏移量
     uint32_t sec_lba;
-    uint8_t* bitmap_off;
+    uint8_t* bitmap_off = (uint8_t*)malloc(sizeof(bitmap_off));
+    // cout << "coe" << endl;
 
     /* 需要被同步到硬盘的位图只有inode_bitmap和block_bitmap */
     switch (btmp_type) {
@@ -95,6 +96,7 @@ void bitmap_sync(struct current_partition* part, uint32_t bit_idx, uint8_t btmp_
         bitmap_off = part->block_bitmap.bits + off_size;
         break;
     }
+
     write_blocks_to_disk(part->v_disk, sec_lba,(char*)bitmap_off, 1);
     // read_blocks_from_disk_unsafe(part->v_disk, sec_lba,(char*)bitmap_off, 1);
     // cout << bitmap_off <<endl;
@@ -103,30 +105,29 @@ void bitmap_sync(struct current_partition* part, uint32_t bit_idx, uint8_t btmp_
 
 int main()
 {
-    int32_t fd_index = get_free_slot_in_file_table();
-    if(fd_index!=-1){
-        int local_fd_idx = pcb_fd_install(fd_index);
-        if(local_fd_idx != -1){
-            virtual_disk test_d = read_disk((char*)"test_disk");
-            // partition_format(&test_d, 1);
-            fs_init(&test_d);
-            current_partition tmp = mount_partition(&test_d, 1);
-            current_partition* test_partition = &tmp;
-            int bit_idx = inode_bitmap_alloc(test_partition);
-            int btmp_type = block_bitmap_alloc(test_partition);
-            if(bit_idx==-1|btmp_type == -1)
-            {
-                cout<<"ERROR:inode or block is full"<<endl;
-            }
-            else
-            {
-                bitmap_sync(test_partition,bit_idx,btmp_type);
-                
-                
-            }
+    // int32_t fd_index = get_free_slot_in_file_table();
+    // if(fd_index!=-1){
+    //     int local_fd_idx = pcb_fd_install(fd_index);
+    //     if(local_fd_idx != -1){
+    //         virtual_disk test_d = read_disk((char*)"test_disk");
+    //         // partition_format(&test_d, 1);
+    //         fs_init(&test_d);
+    //         current_partition tmp = mount_partition(&test_d, 1);
+    //         current_partition* test_partition = &tmp;
+    //         int bit_idx = inode_bitmap_alloc(test_partition);
+    //         int btmp_type = block_bitmap_alloc(test_partition);
+    //         if(bit_idx==-1 || btmp_type == -1)
+    //         {
+    //             cout<<"ERROR:inode or block is full"<<endl;
+    //         }
+    //         else
+    //         {
+    //             // cout<<"correct"<<endl;
+    //             bitmap_sync(test_partition,bit_idx,btmp_type);
+    //         }
             
-        }
-    }
+    //     }
+    // }
     // else{
     //     cout<<"first error"<<endl;
     // }
