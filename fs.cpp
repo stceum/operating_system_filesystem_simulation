@@ -9,6 +9,7 @@
 #define SUCCESS 1
 #define FAILED 0
 
+current_partition* cur_part;
 int write_blocks_to_disk(virtual_disk *disk, uint32_t lba, char* data,size_t bc) {
     std::fstream fs(disk->disk_name, std::ios::binary | std::ios::out | std::ios::in);
     if (fs) {
@@ -202,22 +203,22 @@ int partition_format(virtual_disk* v_disk, int partition_no) {
     return SUCCESS;
 }
 
-current_partition mount_partition(virtual_disk* v_disk, int partition_no) {
-    current_partition cp;
-    cp.v_disk = v_disk;
+int mount_partition(virtual_disk* v_disk, int partition_no) {
+    current_partition* cp = cur_part = (current_partition*)malloc(sizeof(current_partition));
+    cp->v_disk = v_disk;
     disk_partition dp = v_disk->partitions[partition_no];
-    cp.partition_no = partition_no;
+    cp->partition_no = partition_no;
     char* buf = (char*)read_blocks_from_disk(v_disk, dp.start_sector_no + 1, 1);
-    cp.sb  = (super_block*)malloc(sizeof(super_block));
-    memcpy(cp.sb, buf, sizeof(super_block));
+    cp->sb  = (super_block*)malloc(sizeof(super_block));
+    memcpy(cp->sb, buf, sizeof(super_block));
     free(buf);
-    cp.block_bitmap.btmp_bytes_len = cp.sb->block_bitmap_lbc * BLOCK_SIZE;
-    cp.block_bitmap.bits = (uint8_t*)read_blocks_from_disk(v_disk, cp.sb->block_bitmap_lba, cp.sb->block_bitmap_lbc);
-    cp.inode_bitmap.btmp_bytes_len = cp.sb->inode_bitmap_lbc * BLOCK_SIZE;
-    cp.inode_bitmap.bits = (uint8_t*)read_blocks_from_disk(v_disk, cp.sb->inode_bitmap_lba, cp.sb->inode_bitmap_lbc);
-    list_init(&cp.open_inodes);
+    cp->block_bitmap.btmp_bytes_len = cp->sb->block_bitmap_lbc * BLOCK_SIZE;
+    cp->block_bitmap.bits = (uint8_t*)read_blocks_from_disk(v_disk, cp->sb->block_bitmap_lba, cp->sb->block_bitmap_lbc);
+    cp->inode_bitmap.btmp_bytes_len = cp->sb->inode_bitmap_lbc * BLOCK_SIZE;
+    cp->inode_bitmap.bits = (uint8_t*)read_blocks_from_disk(v_disk, cp->sb->inode_bitmap_lba, cp->sb->inode_bitmap_lbc);
+    list_init(&cp->open_inodes);
     std::cout << dp.partition_name << " mounted!" << std::endl;
-    return cp;
+    return SUCCESS;
 }
 
 void fs_init(virtual_disk* v_disk) {

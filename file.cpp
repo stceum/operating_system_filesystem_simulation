@@ -112,10 +112,9 @@ int main()
     //         virtual_disk test_d = read_disk((char*)"test_disk");
     //         // partition_format(&test_d, 1);
     //         fs_init(&test_d);
-    //         current_partition tmp = mount_partition(&test_d, 1);
-    //         current_partition* test_partition = &tmp;
-    //         int bit_idx = inode_bitmap_alloc(test_partition);
-    //         int btmp_type = block_bitmap_alloc(test_partition);
+    //         mount_partition(&test_d, 1);
+    //         int bit_idx = inode_bitmap_alloc(cur_part);
+    //         int btmp_type = block_bitmap_alloc(cur_part);
     //         if(bit_idx==-1 || btmp_type == -1)
     //         {
     //             cout<<"ERROR:inode or block is full"<<endl;
@@ -123,7 +122,7 @@ int main()
     //         else
     //         {
     //             // cout<<"correct"<<endl;
-    //             bitmap_sync(test_partition,bit_idx,btmp_type);
+    //             bitmap_sync(cur_part,bit_idx,btmp_type);
     //         }
             
     //     }

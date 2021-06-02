@@ -24,6 +24,8 @@ typedef struct current_partition {
     list open_inodes;	 // 本分区打开的i结点队列
 }current_partition;
 
+extern current_partition* cur_part;
+
 /* 向 某个磁盘 的 某个地址 写入 数据 */
 int write_blocks_to_disk(virtual_disk *disk,  uint32_t lba, char* data, size_t bc);
 
@@ -43,6 +45,6 @@ int partition_format(virtual_disk* v_disk, int partition_no);
 void fs_init(virtual_disk* v_disk);
 
 /* "挂载"某个分区 */
-current_partition mount_partition(virtual_disk* v_disk, int partition_no);
+int mount_partition(virtual_disk* v_disk, int partition_no);
 
 #endif
