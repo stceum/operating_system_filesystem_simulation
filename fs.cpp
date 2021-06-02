@@ -7,7 +7,7 @@
 
 #include <iostream>
 #define SUCCESS 1
-#define FAIL 0
+#define FAILED 0
 
 int write_blocks_to_disk(virtual_disk *disk, uint32_t lba, char* data,size_t bc) {
     std::fstream fs(disk->disk_name, std::ios::binary | std::ios::out | std::ios::in);
@@ -19,7 +19,7 @@ int write_blocks_to_disk(virtual_disk *disk, uint32_t lba, char* data,size_t bc)
     	fs.close();
         return SUCCESS;
     } else {
-        return FAIL;
+        return FAILED;
     }
 }
 
@@ -36,6 +36,18 @@ char* read_blocks_from_disk(virtual_disk *disk, uint32_t lba, size_t bc) {
     } else {
         return (char*)(0);
     }
+}
+
+int read_blocks_from_disk_unsafe(virtual_disk *disk, uint32_t lba, char* data, size_t bc) {
+    char* tmp = read_blocks_from_disk(disk, lba, bc);
+    if(!tmp) {
+        memcpy(data, tmp, bc);
+        free(tmp);
+        return SUCCESS;
+    } else {
+        return FAILED;
+    }
+    
 }
 
 // 逻辑块地址是指第几块 类似扇区号
@@ -109,7 +121,7 @@ int partition_format(virtual_disk* v_disk, int partition_no) {
         std::cout << "Super block has been written to disk!" << std::endl;
     } else {
         std::cout << "Super block failed to write to disk!" << std::endl;
-        return FAIL;
+        return FAILED;
     }
 
     // 设置写入磁盘的缓存
@@ -138,7 +150,7 @@ int partition_format(virtual_disk* v_disk, int partition_no) {
         std::cout << "Block bitmap has been written to disk!" << std::endl;
     } else {
         std::cout << "Block bitmap failed to write to disk!" << std::endl;
-        return FAIL;
+        return FAILED;
     }
     
     /* 3 将 inode 位图写入磁盘 */
@@ -149,7 +161,7 @@ int partition_format(virtual_disk* v_disk, int partition_no) {
         std::cout << "Inode bitmap has been written to disk!" << std::endl;
     } else {
         std::cout << "Inode bitmap failed to write to disk!" << std::endl;
-        return FAIL;
+        return FAILED;
     }
 
     /* 4 将 inode 数组写入磁盘 */
@@ -163,7 +175,7 @@ int partition_format(virtual_disk* v_disk, int partition_no) {
         std::cout << "Inode table has been written to disk!" << std::endl;
     } else {
         std::cout << "Inode table failed to write to disk!" << std::endl;
-        return FAIL;
+        return FAILED;
     }
 
     /* 5 将根目录写入磁盘 */
@@ -184,7 +196,7 @@ int partition_format(virtual_disk* v_disk, int partition_no) {
         std::cout << "Dir Root has been written to disk!" << std::endl;
     } else {
         std::cout << "Dir Root failed to write to disk!" << std::endl;
-        return FAIL;
+        return FAILED;
     }
     free(buf);
     return SUCCESS;
