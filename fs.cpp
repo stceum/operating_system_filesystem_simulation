@@ -4,6 +4,7 @@
 #include "dir.h"
 #include "super_block.h"
 #include "list.h"
+#include "dir.h"
 
 #include <iostream>
 #define SUCCESS 1
@@ -184,15 +185,15 @@ int partition_format(virtual_disk* v_disk, int partition_no) {
     dir_entry * de_ptr = (dir_entry *)buf;
 
     // 当前目录 .
-    memcpy(de_ptr->name, ".", 1);
+    memcpy(de_ptr->filename, ".", 1);
     de_ptr->i_no = 0;
-    de_ptr->ft = FT_DIRCTORY;
+    de_ptr->f_type = FT_DIRCTORY;
     de_ptr++;
 
     // 当前目录的父目录 ..
-    memcpy(de_ptr->name, "..", 2);
+    memcpy(de_ptr->filename, "..", 2);
     de_ptr->i_no = 0;
-    de_ptr->ft = FT_DIRCTORY;
+    de_ptr->f_type = FT_DIRCTORY;
     if(write_blocks_to_disk(v_disk, sb.data_start_lba, (char *)buf, 1)) {
         std::cout << "Dir Root has been written to disk!" << std::endl;
     } else {
@@ -234,6 +235,43 @@ void fs_init(virtual_disk* v_disk) {
         }
         free(dp);
     }
+}
+
+/* 将最上层路径名称解析出来 */
+static char* path_parse(char* pathname, char* name_store) {
+   if (pathname[0] == '/') {   // 根目录不需要单独解析
+    /* 路径中出现1个或多个连续的字符'/',将这些'/'跳过,如"///a/b" */
+       while(*(++pathname) == '/');
+   }
+
+   /* 开始一般的路径解析 */
+   while (*pathname != '/' && *pathname != 0) {
+      *name_store++ = *pathname++;
+   }
+
+   if (pathname[0] == 0) {   // 若路径字符串为空则返回NULL
+      return NULL;
+   }
+   return pathname; 
+}
+
+/* 返回路径深度,比如/a/b/c,深度为3 */
+int32_t path_depth_cnt(char* pathname) {
+   if(!(pathname != NULL)) return -1;
+   char* p = pathname;
+   char name[MAX_FILENAME_LEN];       // 用于path_parse的参数做路径解析
+   uint32_t depth = 0;
+
+   /* 解析路径,从中拆分出各级名称 */ 
+   p = path_parse(p, name);
+   while (name[0]) {
+      depth++;
+      memset(name, 0, MAX_FILENAME_LEN);
+      if (p) {	     // 如果p不等于NULL,继续分析路径
+	p  = path_parse(p, name);
+      }
+   }
+   return depth;
 }
 
 // int main() {
