@@ -30,6 +30,12 @@ int write_blocks_to_disk(virtual_disk *disk,  uint32_t lba, char* data, size_t b
 /* 从 某个磁盘 的 某个块号 读出 size 大小的数据 并返回指针 */
 char* read_blocks_from_disk(virtual_disk *disk,  uint32_t lba, size_t bc);
 
+/* 
+ * 功能和 read blocks from disk 函数 相同，不过此函数不分配空间，需要提前分配好空间，并传入指针
+ * 由于可能传入一个空指针，因此"unsafe"
+ */
+int read_blocks_from_disk_unsafe(virtual_disk *disk, uint32_t lba, char* data, size_t bc);
+
 /* 将 v_disk 的第 partition_no 个分区格式化 (从0开始计数)*/
 int partition_format(virtual_disk* v_disk, int partition_no);
 
