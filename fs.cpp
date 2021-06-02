@@ -3,6 +3,7 @@
 #include "inode.h"
 #include "dir.h"
 #include "super_block.h"
+#include "list.h"
 
 #include <iostream>
 #define SUCCESS 1
@@ -189,6 +190,23 @@ int partition_format(virtual_disk* v_disk, int partition_no) {
     return SUCCESS;
 }
 
+current_partition mount_partition(virtual_disk* v_disk, int partition_no) {
+    current_partition cp;
+    cp.v_disk = v_disk;
+    disk_partition dp = v_disk->partitions[partition_no];
+    cp.partition_no = partition_no;
+    char* buf = (char*)read_blocks_from_disk(v_disk, dp.start_sector_no + 1, 1);
+    cp.sb  = (super_block*)malloc(sizeof(super_block));
+    memcpy(cp.sb, buf, sizeof(super_block));
+    free(buf);
+    cp.block_bitmap.btmp_bytes_len = cp.sb->block_bitmap_lbc * BLOCK_SIZE;
+    cp.block_bitmap.bits = (uint8_t*)read_blocks_from_disk(v_disk, cp.sb->block_bitmap_lba, cp.sb->block_bitmap_lbc);
+    cp.inode_bitmap.btmp_bytes_len = cp.sb->inode_bitmap_lbc * BLOCK_SIZE;
+    cp.inode_bitmap.bits = (uint8_t*)read_blocks_from_disk(v_disk, cp.sb->inode_bitmap_lba, cp.sb->inode_bitmap_lbc);
+    list_init(&cp.open_inodes);
+    std::cout << dp.partition_name << " mounted!" << std::endl;
+}
+
 void fs_init(virtual_disk* v_disk) {
     std::cout << "Searching filesystem on " << v_disk->disk_name << std::endl;
     for (int i = 0; i < v_disk->current_partition_count; i++) {
@@ -202,16 +220,16 @@ void fs_init(virtual_disk* v_disk) {
         }
         free(dp);
     }
-    
 }
 
-// int main() {
-//     // create_disk((char*)"test_disk", 512 * (1048576));
-//     // int sizes[2] = {268173304, 268173304};
-//     // char *names[8] = {(char*)"p1", (char*)"p2"};
-//     // create_partitions((char*)"test_disk", 2, sizes, names);
+int main() {
+    // create_disk((char*)"test_disk", 512 * (1048576));
+    // int sizes[2] = {268173304, 268173304};
+    // char *names[8] = {(char*)"p1", (char*)"p2"};
+    // create_partitions((char*)"test_disk", 2, sizes, names);
 
-//     virtual_disk test_d = read_disk((char*)"test_disk");
-//     // partition_format(&test_d, 1);
-//     fs_init(&test_d);
-// }
+    virtual_disk test_d = read_disk((char*)"test_disk");
+    // partition_format(&test_d, 1);
+    fs_init(&test_d);
+    mount_partition(&test_d, 1);
+}

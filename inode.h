@@ -2,11 +2,7 @@
 #define INODE_H
 
 #include <stdint.h>
-
-typedef struct list_elem {
-   struct list_elem* prev; // 前躯结点
-   struct list_elem* next; // 后继结点
-}list_elem;
+#include "list.h"
 
 // index node
 // 目录和文件在文件系统中对于inode来说没有区别

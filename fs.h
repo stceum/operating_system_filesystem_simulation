@@ -8,8 +8,21 @@
 #define BLOCK_SIZE SECTOR_SIZE  // 一个扇区一个块
 
 #include "disk.h"
+#include "super_block.h"
+#include "bitmap.h"
+#include "list.h"
 #include <fstream>
 #include <cstring>
+
+// 用于放在内存中 用于"挂载"当前的分区
+typedef struct current_partition {
+    virtual_disk* v_disk; // 磁盘名
+    int partition_no;                  // 第几个分区
+    super_block *sb;
+    bitmap block_bitmap;
+    bitmap inode_bitmap;
+    list open_inodes;	 // 本分区打开的i结点队列
+}current_partition;
 
 /* 向 某个磁盘 的 某个地址 写入 数据 */
 int write_blocks_to_disk(virtual_disk *disk,  uint32_t lba, char* data, size_t bc);
@@ -22,4 +35,8 @@ int partition_format(virtual_disk* v_disk, int partition_no);
 
 /* 文件系统初始化 */
 void fs_init(virtual_disk* v_disk);
+
+/* "挂载"某个分区 */
+current_partition mount_partition(virtual_disk* v_disk, int partition_no);
+
 #endif
