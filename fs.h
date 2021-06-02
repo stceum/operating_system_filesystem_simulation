@@ -17,7 +17,7 @@
 // 用于放在内存中 用于"挂载"当前的分区
 typedef struct current_partition {
     virtual_disk* v_disk; // 磁盘名
-    int partition_no;                  // 第几个分区
+    int partition_no;     // 第几个分区
     super_block *sb;
     bitmap block_bitmap;
     bitmap inode_bitmap;
