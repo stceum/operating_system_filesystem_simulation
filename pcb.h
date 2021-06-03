@@ -8,5 +8,6 @@ typedef struct pcb
     int32_t fd_table[MAX_FILES_OPEN_PER_PROC];  //进程打开的文件
 }pcb;
 extern pcb *cur;
+extern char *cwd_buf;
 void init_pcb(pcb * p);
 #endif
