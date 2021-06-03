@@ -52,6 +52,5 @@ int32_t file_close(struct file *file);
 
 /* 打开编号为inode_no的inode对应的文件,若成功则返回文件描述符,否则返回-1 */
 int32_t file_open(uint32_t inode_no, uint8_t flag);
-
-
+int32_t file_write(struct file *file, const void *buf, uint32_t count);
 #endif
