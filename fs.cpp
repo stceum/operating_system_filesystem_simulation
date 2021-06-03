@@ -17,8 +17,9 @@ int write_blocks_to_disk(virtual_disk* disk, uint32_t lba, char* data,
   std::fstream fs(disk->disk_name,
                   std::ios::binary | std::ios::out | std::ios::in);
   if (fs) {
-    // std::cout << std::hex;
-    // std::cout << "======" << (lba * BLOCK_SIZE) << std::endl;
+    std::cout << std::hex;
+    std::cout << "======" << (lba * BLOCK_SIZE) << std::endl;
+    std::cout << std::dec;
     fs.seekp(lba * BLOCK_SIZE, std::ios::beg);
     fs.write(data, bc * BLOCK_SIZE);
     fs.close();
@@ -32,8 +33,9 @@ char* read_blocks_from_disk(virtual_disk* disk, uint32_t lba, size_t bc) {
   std::fstream fs(disk->disk_name,
                   std::ios::binary | std::ios::out | std::ios::in);
   if (fs) {
-    // std::cout << std::hex;
-    // std::cout << "======" << (lba * BLOCK_SIZE) << std::endl;
+    std::cout << std::hex;
+    std::cout << "======" << (lba * BLOCK_SIZE) << std::endl;
+    std::cout << std::dec;
     fs.seekp(lba * BLOCK_SIZE, std::ios::beg);
     char* data = (char*)malloc(bc * BLOCK_SIZE);
     fs.read(data, bc * BLOCK_SIZE);
@@ -47,8 +49,8 @@ char* read_blocks_from_disk(virtual_disk* disk, uint32_t lba, size_t bc) {
 int read_blocks_from_disk_unsafe(virtual_disk* disk, uint32_t lba, char* data,
                                  size_t bc) {
   char* tmp = read_blocks_from_disk(disk, lba, bc);
-  if (!tmp) {
-    memcpy(data, tmp, bc);
+  if (tmp != (char*)(0)) {
+    memcpy(data, tmp, bc * BLOCK_SIZE);
     free(tmp);
     return SUCCESS;
   } else {
@@ -251,6 +253,7 @@ void fs_init(virtual_disk* v_disk, int default_partition_no) {
   }
   mount_partition(v_disk, default_partition_no);
   open_root_dir(cur_part);
+  std::cout << root_dir.inode->i_no << std::endl;
   uint32_t fd_idx = 0;
   while (fd_idx < MAX_FILE_OPEN) {
     file_table[fd_idx++].fd_inode = NULL;
