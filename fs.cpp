@@ -17,9 +17,9 @@ int write_blocks_to_disk(virtual_disk* disk, uint32_t lba, char* data,
   std::fstream fs(disk->disk_name,
                   std::ios::binary | std::ios::out | std::ios::in);
   if (fs) {
-    std::cout << std::hex;
-    std::cout << "======" << (lba * BLOCK_SIZE) << std::endl;
-    std::cout << std::dec;
+    // std::cout << std::hex;
+    // std::cout << "======" << (lba * BLOCK_SIZE) << std::endl;
+    // std::cout << std::dec;
     fs.seekp(lba * BLOCK_SIZE, std::ios::beg);
     fs.write(data, bc * BLOCK_SIZE);
     fs.close();
@@ -33,9 +33,9 @@ char* read_blocks_from_disk(virtual_disk* disk, uint32_t lba, size_t bc) {
   std::fstream fs(disk->disk_name,
                   std::ios::binary | std::ios::out | std::ios::in);
   if (fs) {
-    std::cout << std::hex;
-    std::cout << "======" << (lba * BLOCK_SIZE) << std::endl;
-    std::cout << std::dec;
+    // std::cout << std::hex;
+    // std::cout << "======" << (lba * BLOCK_SIZE) << std::endl;
+    // std::cout << std::dec;
     fs.seekp(lba * BLOCK_SIZE, std::ios::beg);
     char* data = (char*)malloc(bc * BLOCK_SIZE);
     fs.read(data, bc * BLOCK_SIZE);
