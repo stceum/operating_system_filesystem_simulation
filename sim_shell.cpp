@@ -17,7 +17,7 @@ int commands() {
   stringstream ss(input);
   ss >> tmp;
   if (tmp == "cd")  // cd
-  {  
+  {
     if (ss >> tmp) {
       if (tmp[0] != '/') {
         tmp = cwd_buf + ("/" + tmp);
@@ -26,10 +26,10 @@ int commands() {
     } else {
       sys_chdir((char*)"/");
     }
-  } 
+  }
 
   else if (tmp == "ls")  // ls
-  { 
+  {
     if (ss >> tmp) {
       if (tmp[0] != '/') {
         tmp = cwd_buf + ("/" + tmp);
@@ -59,10 +59,10 @@ int commands() {
     } else {
       printf("%s open fail!\n", cwd_buf);
     }
-  } 
+  }
 
-  else if (tmp == "touch") // touch
-  {  
+  else if (tmp == "touch")  // touch
+  {
     if (ss >> tmp) {
       if (tmp[0] != '/') {
         tmp = cwd_buf + ("/" + tmp);
@@ -71,41 +71,56 @@ int commands() {
     } else {
       sys_open(tmp.c_str(), O_CREAT);
     }
-  } 
-  
+  }
+
   else if (tmp == "mv") 
   {
-  } 
-  
+
+  }
+
   else if (tmp == "cp") 
   {
-  } 
-  
+
+  }
+
   else if (tmp == "rm") 
   {
-  } 
-  
+
+  }
+
   else if (tmp == "echo") 
   {
+
   }
 
   else if (tmp == "cat") 
   {
-  } 
+
+  }
 
   else if (tmp == "mkdir") 
   {
-  } 
+     if (ss >> tmp) {
+      if (tmp[0] != '/') {
+        tmp = cwd_buf + ("/" + tmp);
+      }
+    } else {
+      tmp = cwd_buf;
+    }
+    if(sys_mkdir(tmp.c_str()) != 0) {
+      cout << "mkdir failed!" << endl;
+    }
+  }
 
   else if (tmp == "su") 
   {
     cout << "su!" << endl;
-  } 
+  }
 
   else if (tmp == "exit") 
   {
     return 0;
   }
-  
+
   return 1;
 }
