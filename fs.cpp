@@ -414,8 +414,8 @@ int32_t sys_open(const char* pathname, uint8_t flags) {
 
   /* 若是在最后一个路径上没找到,并且并不是要创建文件,直接返回-1 */
   if (!found && !(flags & O_CREAT)) {
-    std::cout << "in path" << searched_record.searched_path << ", file "
-              << (strrchr(searched_record.searched_path, '/') + 1) << "is exist"
+    std::cout << "in path " << searched_record.searched_path << ", file "
+              << (strrchr(searched_record.searched_path, '/') + 1) << " is exist"
               << std::endl;
     dir_close(searched_record.parent_dir);
     return -1;
