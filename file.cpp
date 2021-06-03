@@ -48,13 +48,12 @@ int32_t pcb_fd_install(int32_t file_table_free_slot) {
     }
     local_fd_idx++;
   }
-  if (local_fd_idx == MAX_FILES_OPEN_PER_PROC)
-    {
-        cout << "ERROR: PCB cannot open more file";
-        return FAIL;
-    }
-    //free(cur);
-    return local_fd_idx;
+  if (local_fd_idx == MAX_FILES_OPEN_PER_PROC) {
+    cout << "ERROR: PCB cannot open more file";
+    return FAIL;
+  }
+  // free(cur);
+  return local_fd_idx;
 }
 
 /* 创建文件,若成功则返回文件描述符,否则返回-1 */

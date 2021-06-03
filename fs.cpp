@@ -486,3 +486,13 @@ int32_t sys_write(int32_t fd, const void* buf, uint32_t count) {
    }
 }
 
+/* 从文件描述符fd指向的文件中读取count个字节到buf,若成功则返回读出的字节数,到文件尾则返回-1 */
+int32_t sys_read(int32_t fd, void* buf, uint32_t count) {
+   if (fd < 0) {
+      std::cout << "sys_read: fd error\n";
+      return -1;
+   }
+   if(!(buf != NULL)) return -1;
+   uint32_t _fd = fd_local2global(fd);
+   return file_read(&file_table[_fd], buf, count);   
+}
