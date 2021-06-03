@@ -36,7 +36,6 @@ int32_t get_free_slot_in_file_table(void)
 
 int32_t pcb_fd_install(int32_t file_table_free_slot)
 {
-    pcb *cur = (pcb *)malloc(sizeof(pcb));
     init_pcb(cur);
     uint32_t local_fd_idx = 3;
     // for (int i = 0; i < MAX_FILES_OPEN_PER_PROC; i++)
@@ -242,15 +241,15 @@ int32_t file_open(uint32_t inode_no, uint8_t flag)
 }
 
 /* 关闭文件 */
-int32_t file_close(struct file *file)
+int32_t file_close(file *f)
 {
-    if (file == NULL)
+    if (f == NULL)
     {
         return -1;
     }
-    file->fd_inode->write_deny = false;
-    inode_close(file->fd_inode);
-    file->fd_inode = NULL; // 使文件结构可用
+    f->fd_inode->write_deny = false;
+    inode_close(f->fd_inode);
+    f->fd_inode = NULL; // 使文件结构可用
     return 0;
 }
 

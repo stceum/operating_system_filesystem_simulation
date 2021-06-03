@@ -131,7 +131,6 @@ bool sync_dir_entry(struct dir *parent_dir, struct dir_entry *p_de, void *io_buf
     uint32_t dir_size = dir_inode->i_size;
     uint32_t dir_entry_size = cur_part->sb->dir_entry_size;
 
-    cout << dir_size << endl << dir_entry_size << endl;
     if(dir_size % dir_entry_size != 0)// dir_size应该是dir_entry_size的整数倍
     {
         cout << "ERROR: dir_size is not an integer multiple of dir_entry_size " << endl;
