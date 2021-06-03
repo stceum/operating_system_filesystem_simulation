@@ -57,7 +57,7 @@ int32_t pcb_fd_install(int32_t file_table_free_slot)
         cout << "ERROR: PCB cannot open more file";
         return FAIL;
     }
-    free(cur);
+    //free(cur);
     return local_fd_idx;
 }
 
