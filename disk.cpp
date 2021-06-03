@@ -74,9 +74,9 @@ virtual_disk read_disk(char* disk_name)
     if (!fp.is_open())
     {
         // useless but remove warning
-        virtual_disk disk;
+        // virtual_disk disk;
         cout << "ERROR: cannot open the file" << endl;
-        return disk;
+        // return disk;
     }
     else
     {
