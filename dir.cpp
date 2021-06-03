@@ -103,6 +103,7 @@ void dir_close(struct dir *dir)
  *2 root_dir所在的内存是低端1M之内,并非在堆中,free会出问题 */
     if (dir == &root_dir)
     {
+        dir->dir_pos = 0;
         /* 不做任何处理直接返回*/
         return;
     }
