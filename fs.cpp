@@ -253,7 +253,6 @@ void fs_init(virtual_disk* v_disk, int default_partition_no) {
   }
   mount_partition(v_disk, default_partition_no);
   open_root_dir(cur_part);
-  std::cout << root_dir.inode->i_no << std::endl;
   uint32_t fd_idx = 0;
   while (fd_idx < MAX_FILE_OPEN) {
     file_table[fd_idx++].fd_inode = NULL;
