@@ -1,5 +1,7 @@
 #include "fs.h"
+
 #include <iostream>
+
 #include "dir.h"
 #include "file.h"
 #include "inode.h"
@@ -415,8 +417,8 @@ int32_t sys_open(const char* pathname, uint8_t flags) {
   /* 若是在最后一个路径上没找到,并且并不是要创建文件,直接返回-1 */
   if (!found && !(flags & O_CREAT)) {
     std::cout << "in path " << searched_record.searched_path << ", file "
-              << (strrchr(searched_record.searched_path, '/') + 1) << " is exist"
-              << std::endl;
+              << (strrchr(searched_record.searched_path, '/') + 1)
+              << " is exist" << std::endl;
     dir_close(searched_record.parent_dir);
     return -1;
   } else if (found && flags & O_CREAT) {  // 若要创建的文件已存在
@@ -445,54 +447,274 @@ int32_t sys_open(const char* pathname, uint8_t flags) {
 
 /* 将文件描述符转化为文件表的下标 */
 static uint32_t fd_local2global(uint32_t local_fd) {
-   int32_t global_fd = cur->fd_table[local_fd];  
-   if(!(global_fd >= 0 && global_fd < MAX_FILE_OPEN)) {
-     std::cout << "!(global_fd >= 0 && global_fd < MAX_FILE_OPEN)!" << std::endl;
-   }
-   return (uint32_t)global_fd;
-} 
+  int32_t global_fd = cur->fd_table[local_fd];
+  if (!(global_fd >= 0 && global_fd < MAX_FILE_OPEN)) {
+    std::cout << "!(global_fd >= 0 && global_fd < MAX_FILE_OPEN)!" << std::endl;
+  }
+  return (uint32_t)global_fd;
+}
 
 /* 关闭文件描述符fd指向的文件,成功返回0,否则返回-1 */
 int32_t sys_close(int32_t fd) {
-   int32_t ret = -1;   // 返回值默认为-1,即失败
-   if (fd > 2) {
-      uint32_t _fd = fd_local2global(fd);
-      ret = file_close(&file_table[_fd]);
-      cur->fd_table[fd] = -1; // 使该文件描述符位可用
-   }
-   return ret;
+  int32_t ret = -1;  // 返回值默认为-1,即失败
+  if (fd > 2) {
+    uint32_t _fd = fd_local2global(fd);
+    ret = file_close(&file_table[_fd]);
+    cur->fd_table[fd] = -1;  // 使该文件描述符位可用
+  }
+  return ret;
 }
 
 /* 将buf中连续count个字节写入文件描述符fd,成功则返回写入的字节数,失败返回-1 */
 int32_t sys_write(int32_t fd, const void* buf, uint32_t count) {
-   if (fd < 0) {
-      std::cout << "sys_write: fd error\n";
-      return -1;
-   }
-   if (fd == stdout_no) {  
-      char tmp_buf[1024] = {0};
-      memcpy(tmp_buf, buf, count);
-      std::cin >> (tmp_buf);
-      return count;
-   }
-   uint32_t _fd = fd_local2global(fd);
-   struct file* wr_file = &file_table[_fd];
-   if (wr_file->fd_flag & O_WRONLY || wr_file->fd_flag & O_RDWR) {
-      uint32_t bytes_written  = file_write(wr_file, buf, count);
-      return bytes_written;
-   } else {
-      std::cout << "sys_write: not allowed to write file without flag O_RDWR or O_WRONLY\n";
-      return -1;
-   }
+  if (fd < 0) {
+    std::cout << "sys_write: fd error\n";
+    return -1;
+  }
+  if (fd == stdout_no) {
+    char tmp_buf[1024] = {0};
+    memcpy(tmp_buf, buf, count);
+    std::cin >> (tmp_buf);
+    return count;
+  }
+  uint32_t _fd = fd_local2global(fd);
+  struct file* wr_file = &file_table[_fd];
+  if (wr_file->fd_flag & O_WRONLY || wr_file->fd_flag & O_RDWR) {
+    uint32_t bytes_written = file_write(wr_file, buf, count);
+    return bytes_written;
+  } else {
+    std::cout << "sys_write: not allowed to write file without flag O_RDWR or "
+                 "O_WRONLY\n";
+    return -1;
+  }
 }
 
-/* 从文件描述符fd指向的文件中读取count个字节到buf,若成功则返回读出的字节数,到文件尾则返回-1 */
+/* 从文件描述符fd指向的文件中读取count个字节到buf,若成功则返回读出的字节数,到文件尾则返回-1
+ */
 int32_t sys_read(int32_t fd, void* buf, uint32_t count) {
-   if (fd < 0) {
-      std::cout << "sys_read: fd error\n";
-      return -1;
-   }
-   if(!(buf != NULL)) return -1;
-   uint32_t _fd = fd_local2global(fd);
-   return file_read(&file_table[_fd], buf, count);   
+  if (fd < 0) {
+    std::cout << "sys_read: fd error\n";
+    return -1;
+  }
+  if (!(buf != NULL)) return -1;
+  uint32_t _fd = fd_local2global(fd);
+  return file_read(&file_table[_fd], buf, count);
+}
+
+/* 重置用于文件读写操作的偏移指针,成功时返回新的偏移量,出错时返回-1 */
+int32_t sys_lseek(int32_t fd, int32_t offset, uint8_t whence) {
+  if (fd < 0) {
+    std::cout << "sys_lseek: fd error\n";
+    return -1;
+  }
+  if (!(whence > 0 && whence < 4)) return -1;
+  uint32_t _fd = fd_local2global(fd);
+  struct file* pf = &file_table[_fd];
+  int32_t new_pos = 0;  //新的偏移量必须位于文件大小之内
+  int32_t file_size = (int32_t)pf->fd_inode->i_size;
+  switch (whence) {
+    /* SEEK_SET 新的读写位置是相对于文件开头再增加offset个位移量 */
+    case F_SEEK_SET:
+      new_pos = offset;
+      break;
+
+    /* SEEK_CUR 新的读写位置是相对于当前的位置增加offset个位移量 */
+    case F_SEEK_CUR:  // offse可正可负
+      new_pos = (int32_t)pf->fd_pos + offset;
+      break;
+
+    /* SEEK_END 新的读写位置是相对于文件尺寸再增加offset个位移量 */
+    case F_SEEK_END:  // 此情况下,offset应该为负值
+      new_pos = file_size + offset;
+  }
+  if (new_pos < 0 || new_pos > (file_size - 1)) {
+    return -1;
+  }
+  pf->fd_pos = new_pos;
+  return pf->fd_pos;
+}
+
+/* 删除文件(非目录),成功返回0,失败返回-1 */
+int32_t sys_unlink(const char* pathname) {
+  if (!(strlen(pathname) < MAX_PATH_LEN)) return -1;
+
+  /* 先检查待删除的文件是否存在 */
+  struct path_search_record searched_record;
+  memset(&searched_record, 0, sizeof(struct path_search_record));
+  int inode_no = search_file(pathname, &searched_record);
+  if (!(inode_no != 0)) return -1;
+  if (inode_no == -1) {
+    std::cout << "file " << pathname << " not found!\n";
+    dir_close(searched_record.parent_dir);
+    return -1;
+  }
+  if (searched_record.f_type == FT_DIRECTORY) {
+    std::cout
+        << "can`t delete a direcotry with unlink(), use rmdir() to instead\n";
+    dir_close(searched_record.parent_dir);
+    return -1;
+  }
+
+  /* 检查是否在已打开文件列表(文件表)中 */
+  uint32_t file_idx = 0;
+  while (file_idx < MAX_FILE_OPEN) {
+    if (file_table[file_idx].fd_inode != NULL &&
+        (uint32_t)inode_no == file_table[file_idx].fd_inode->i_no) {
+      break;
+    }
+    file_idx++;
+  }
+  if (file_idx < MAX_FILE_OPEN) {
+    dir_close(searched_record.parent_dir);
+    std::cout << "file " << pathname << " is in use, not allow to delete!\n";
+    return -1;
+  }
+  if (!(file_idx == MAX_FILE_OPEN)) return -1;
+
+  /* 为delete_dir_entry申请缓冲区 */
+  void* io_buf = (void*)malloc(SECTOR_SIZE + SECTOR_SIZE);
+  if (io_buf == NULL) {
+    dir_close(searched_record.parent_dir);
+    std::cout << "sys_unlink: malloc for io_buf failed\n";
+    return -1;
+  }
+
+  struct dir* parent_dir = searched_record.parent_dir;
+  delete_dir_entry(cur_part, parent_dir, inode_no, io_buf);
+  inode_release(cur_part, inode_no);
+  free(io_buf);
+  dir_close(searched_record.parent_dir);
+  return 0;  // 成功删除文件
+}
+
+/* 创建目录pathname,成功返回0,失败返回-1 */
+int32_t sys_mkdir(const char* pathname) {
+  uint8_t rollback_step = 0;  // 用于操作失败时回滚各资源状态
+  void* io_buf = (void*)malloc(SECTOR_SIZE * 2);
+  uint32_t pathname_depth;
+  uint32_t path_searched_depth;
+  struct inode new_dir_inode;
+  uint32_t block_bitmap_idx;
+  int32_t block_lba;
+  struct dir_entry* p_de;
+  struct dir_entry new_dir_entry;
+  struct dir* parent_dir;
+  char* dirname;
+  if (io_buf == NULL) {
+    std::cout << "sys_mkdir: sys_malloc for io_buf failed\n";
+    return -1;
+  }
+
+  struct path_search_record searched_record;
+  memset(&searched_record, 0, sizeof(struct path_search_record));
+  int inode_no = -1;
+  inode_no = search_file(pathname, &searched_record);
+  if (inode_no != -1) {  // 如果找到了同名目录或文件,失败返回
+    std::cout << "sys_mkdir: file or directory " << pathname << " exist!\n";
+    rollback_step = 1;
+    goto rollback;
+  } else {  // 若未找到,也要判断是在最终目录没找到还是某个中间目录不存在
+    pathname_depth = path_depth_cnt((char*)pathname);
+    path_searched_depth = path_depth_cnt(searched_record.searched_path);
+    /* 先判断是否把pathname的各层目录都访问到了,即是否在某个中间目录就失败了 */
+    if (pathname_depth !=
+        path_searched_depth) {  // 说明并没有访问到全部的路径,某个中间目录是不存在的
+      std::cout << "sys_mkdir: can`t access " << pathname << ", subpath "
+                << searched_record.searched_path << " is`t exist\n";
+      rollback_step = 1;
+      goto rollback;
+    }
+  }
+
+  parent_dir = searched_record.parent_dir;
+  /* 目录名称后可能会有字符'/',所以最好直接用searched_record.searched_path,无'/'
+   */
+  dirname = strrchr(searched_record.searched_path, '/') + 1;
+
+  inode_no = inode_bitmap_alloc(cur_part);
+  if (inode_no == -1) {
+    std::cout << "sys_mkdir: allocate inode failed\n";
+    rollback_step = 1;
+    goto rollback;
+  }
+
+  inode_init(inode_no, &new_dir_inode);  // 初始化i结点
+
+  block_bitmap_idx = 0;  // 用来记录block对应于block_bitmap中的索引
+  block_lba = -1;
+  /* 为目录分配一个块,用来写入目录.和.. */
+  block_lba = block_bitmap_alloc(cur_part);
+  if (block_lba == -1) {
+    std::cout << "sys_mkdir: block_bitmap_alloc for create directory failed\n";
+    rollback_step = 2;
+    goto rollback;
+  }
+  new_dir_inode.i_block[0] = block_lba;
+  /* 每分配一个块就将位图同步到硬盘 */
+  block_bitmap_idx = block_lba - cur_part->sb->data_start_lba;
+  if (!(block_bitmap_idx != 0)) return -1;
+  bitmap_sync(cur_part, block_bitmap_idx, BLOCK_BITMAP);
+
+  /* 将当前目录的目录项'.'和'..'写入目录 */
+  memset(io_buf, 0, SECTOR_SIZE * 2);  // 清空io_buf
+  p_de = (struct dir_entry*)io_buf;
+
+  /* 初始化当前目录"." */
+  memcpy(p_de->filename, ".", 1);
+  p_de->i_no = inode_no;
+  p_de->f_type = FT_DIRECTORY;
+
+  p_de++;
+  /* 初始化当前目录".." */
+  memcpy(p_de->filename, "..", 2);
+  p_de->i_no = parent_dir->inode->i_no;
+  p_de->f_type = FT_DIRECTORY;
+  write_blocks_to_disk(cur_part->v_disk, new_dir_inode.i_block[0],
+                       (char*)io_buf, 1);
+
+  new_dir_inode.i_size = 2 * cur_part->sb->dir_entry_size;
+
+  /* 在父目录中添加自己的目录项 */
+  memset(&new_dir_entry, 0, sizeof(struct dir_entry));
+  create_dir_entry(dirname, inode_no, FT_DIRECTORY, &new_dir_entry);
+  memset(io_buf, 0, SECTOR_SIZE * 2);  // 清空io_buf
+  if (!sync_dir_entry(
+          parent_dir, &new_dir_entry,
+          io_buf)) {  // sync_dir_entry中将block_bitmap通过bitmap_sync同步到硬盘
+    std::cout << "sys_mkdir: sync_dir_entry to disk failed!\n";
+    rollback_step = 2;
+    goto rollback;
+  }
+
+  /* 父目录的inode同步到硬盘 */
+  memset(io_buf, 0, SECTOR_SIZE * 2);
+  inode_sync(cur_part, parent_dir->inode, io_buf);
+
+  /* 将新创建目录的inode同步到硬盘 */
+  memset(io_buf, 0, SECTOR_SIZE * 2);
+  inode_sync(cur_part, &new_dir_inode, io_buf);
+
+  /* 将inode位图同步到硬盘 */
+  bitmap_sync(cur_part, inode_no, INODE_BITMAP);
+
+  free(io_buf);
+
+  /* 关闭所创建目录的父目录 */
+  dir_close(searched_record.parent_dir);
+  return 0;
+
+/*创建文件或目录需要创建相关的多个资源,若某步失败则会执行到下面的回滚步骤 */
+rollback:  // 因为某步骤操作失败而回滚
+  switch (rollback_step) {
+    case 2:
+      bitmap_set(
+          &cur_part->inode_bitmap, inode_no,
+          0);  // 如果新文件的inode创建失败,之前位图中分配的inode_no也要恢复
+    case 1:
+      /* 关闭所创建目录的父目录 */
+      dir_close(searched_record.parent_dir);
+      break;
+  }
+  free(io_buf);
+  return -1;
 }

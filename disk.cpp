@@ -73,7 +73,10 @@ virtual_disk read_disk(char* disk_name)
     fp.open(disk_name, ios::in | ios::binary);
     if (!fp.is_open())
     {
+        // useless but remove warning
+        virtual_disk disk;
         cout << "ERROR: cannot open the file" << endl;
+        return disk;
     }
     else
     {
