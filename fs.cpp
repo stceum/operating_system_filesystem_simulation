@@ -377,7 +377,7 @@ static int search_file(const char* pathname,
 int32_t sys_open(const char* pathname, uint8_t flags) {
   /* 对目录要用dir_open,这里只有open文件 */
   if (pathname[strlen(pathname) - 1] == '/') {
-    std::cout << ("can`t open a directory %s\n", pathname);
+    std::cout << "can`t open a directory pathname\n";
     return -1;
   }
   if (!(flags <= 7)) {
@@ -398,7 +398,7 @@ int32_t sys_open(const char* pathname, uint8_t flags) {
 
   if (searched_record.f_type == FT_DIRECTORY) {
     std::cout
-        << ("can`t open a direcotry with open(), use opendir() to instead\n");
+        << "can`t open a direcotry with open(), use opendir() to instead\n";
     dir_close(searched_record.parent_dir);
     return -1;
   }
@@ -408,19 +408,21 @@ int32_t sys_open(const char* pathname, uint8_t flags) {
   /* 先判断是否把pathname的各层目录都访问到了,即是否在某个中间目录就失败了 */
   if (pathname_depth !=
       path_searched_depth) {  // 说明并没有访问到全部的路径,某个中间目录是不存在的
-    std::cout << ("cannot access %s: Not a directory, subpath %s is`t exist\n",
-                  pathname, searched_record.searched_path);
+    std::cout << "cannot access " << pathname << ": Not a directory, subpath "
+              << searched_record.searched_path << " is`t exist\n";
     dir_close(searched_record.parent_dir);
     return -1;
   }
 
   /* 若是在最后一个路径上没找到,并且并不是要创建文件,直接返回-1 */
   if (!found && !(flags & O_CREAT)) {
-    std::cout << "in path" << searched_record.searched_path << ", file " << (strrchr(searched_record.searched_path, '/') + 1) << "is exist" <<std::endl;
+    std::cout << "in path" << searched_record.searched_path << ", file "
+              << (strrchr(searched_record.searched_path, '/') + 1) << "is exist"
+              << std::endl;
     dir_close(searched_record.parent_dir);
     return -1;
   } else if (found && flags & O_CREAT) {  // 若要创建的文件已存在
-    std::cout << pathname << " has already exist!\n"<< std::endl;
+    std::cout << pathname << " has already exist!\n" << std::endl;
     dir_close(searched_record.parent_dir);
     return -1;
   }
