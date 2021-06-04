@@ -478,22 +478,22 @@ int32_t file_write(struct file *file, const void *buf, uint32_t count) {
           return -1;
         }
 
-        /* 写文件时,不应该存在块未使用但已经分配扇区的情况,当文件删除时,就会把块地址清0
+        /* 写文件时,不应该存在块未使用但已经分配块的情况,当文件删除时,就会把块地址清0
          */
         if (!(file->fd_inode->i_block[block_idx] == 0))
-          break;  // 确保尚未分配扇区地址
+          break;  // 确保尚未分配块地址
         file->fd_inode->i_block[block_idx] = all_blocks[block_idx] = block_lba;
 
         /* 每分配一个块就将位图同步到硬盘 */
         block_bitmap_idx = block_lba - cur_part->sb->data_start_lba;
         bitmap_sync(cur_part, block_bitmap_idx, BLOCK_BITMAP);
 
-        block_idx++;  // 下一个分配的新扇区
+        block_idx++;  // 下一个分配的新块
       }
     } else if (file_has_used_blocks <= 12 && file_will_use_blocks > 12) {
       /* 第二种情况: 旧数据在12个直接块内,新数据将使用间接块*/
 
-      /* 先将有剩余空间的可继续用的扇区地址收集到all_blocks */
+      /* 先将有剩余空间的可继续用的块地址收集到all_blocks */
       block_idx = file_has_used_blocks - 1;  // 指向旧数据所在的最后一个扇区
       all_blocks[block_idx] = file->fd_inode->i_block[block_idx];
 
@@ -520,7 +520,7 @@ int32_t file_write(struct file *file, const void *buf, uint32_t count) {
 
         if (block_idx < 12) {  // 新创建的0~11块直接存入all_blocks数组
           if (!(file->fd_inode->i_block[block_idx] == 0))
-            return -1;  // 确保尚未分配扇区地址
+            return -1;  // 确保尚未分配块地址
           file->fd_inode->i_block[block_idx] = all_blocks[block_idx] =
               block_lba;
         } else {  // 间接块只写入到all_block数组中,待全部分配完成后一次性同步到硬盘
@@ -531,7 +531,7 @@ int32_t file_write(struct file *file, const void *buf, uint32_t count) {
         block_bitmap_idx = block_lba - cur_part->sb->data_start_lba;
         bitmap_sync(cur_part, block_bitmap_idx, BLOCK_BITMAP);
 
-        block_idx++;  // 下一个新扇区
+        block_idx++;  // 下一个新块
       }
       write_blocks_to_disk(cur_part->v_disk, indirect_block_table,
                            (char *)(all_blocks + 12),
@@ -568,7 +568,7 @@ int32_t file_write(struct file *file, const void *buf, uint32_t count) {
   }
 
   /* 用到的块地址已经收集到all_blocks中,下面开始写数据 */
-  bool first_write_block = true;  // 含有剩余空间的扇区标识
+  bool first_write_block = true;  // 含有剩余空间的块标识
   file->fd_pos = file->fd_inode->i_size -
                  1;  // 置fd_pos为文件大小-1,下面在写数据时随时更新
   while (bytes_written < count) {  // 直到写完所有数据
