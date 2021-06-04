@@ -80,19 +80,18 @@ int commands() {
       if (tmp[0] != '/') tmp = cwd_buf + ("/" + tmp);
       path_s = tmp;
       fd_s = sys_open(tmp.c_str(), O_RDWR);
-      if(fd_s == -1) {
+      if (fd_s == -1) {
         cout << tmp << "does not exist." << endl;
       } else {
         if (ss >> tmp) {
           if (tmp[0] != '/') tmp = cwd_buf + ("/" + tmp);
           fd_d = sys_open(tmp.c_str(), O_CREAT | O_RDWR);
-          if(fd_d == -1) {
+          if (fd_d == -1) {
             cout << "create " << tmp << " failed." << endl;
           } else {
             char buf[100];
             int w_size;
-            while ((w_size = sys_read(fd_s, buf, 100)) > 0)
-            {
+            while ((w_size = sys_read(fd_s, buf, 100)) > 0) {
               sys_write(fd_d, buf, w_size);
             }
             sys_close(fd_d);
@@ -110,19 +109,18 @@ int commands() {
     if (ss >> tmp) {
       if (tmp[0] != '/') tmp = cwd_buf + ("/" + tmp);
       fd_s = sys_open(tmp.c_str(), O_RDWR);
-      if(fd_s == -1) {
+      if (fd_s == -1) {
         cout << tmp << "does not exist." << endl;
       } else {
         if (ss >> tmp) {
           if (tmp[0] != '/') tmp = cwd_buf + ("/" + tmp);
           fd_d = sys_open(tmp.c_str(), O_CREAT | O_RDWR);
-          if(fd_d == -1) {
+          if (fd_d == -1) {
             cout << "create " << tmp << " failed." << endl;
           } else {
             char buf[100];
             int w_size;
-            while ((w_size = sys_read(fd_s, buf, 100)) > 0)
-            {
+            while ((w_size = sys_read(fd_s, buf, 100)) > 0) {
               sys_write(fd_d, buf, w_size);
             }
             sys_close(fd_d);
@@ -204,8 +202,8 @@ int commands() {
   }
 
   else if (tmp == "su") {
-    if(strcmp(cur_user, "root") == 0) {
-      if(ss >> tmp) {
+    if (strcmp(cur_user, "root") == 0) {
+      if (ss >> tmp) {
         strcpy(cur_user, tmp.c_str());
       }
     } else {
@@ -221,5 +219,17 @@ int commands() {
 }
 
 int login() {
-
+  string username, passwd;
+  cout << "Please input username: ";
+  cin >> username;
+  cout << "password: ";
+  cin >> passwd;
+  if (username == "root" && passwd == "403") {
+    cin.ignore();
+    return 0;
+  } else {
+    cout << "Uncorrect!" << endl;
+    cin.ignore();
+    return 1;
+  }
 }
