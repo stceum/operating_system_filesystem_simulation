@@ -9,7 +9,7 @@
 
 using namespace std;
 int main(int argc, char** argv) {
-  if (argc > 2 && !strcmp(argv[1], "-i")) {
+  if (argc >= 2 && !strcmp(argv[1], "-i")) {
     char c[16];
     uint32_t i;
     int p[8];
@@ -20,17 +20,19 @@ int main(int argc, char** argv) {
 
     cout << "Please input disk name(lenth<16): ";
     cin >> c;
-    cout << "Please input disk volumn(Byte): ";
+    cout << "Please input disk volumn(MB): ";
     cin >> i;
+    i *= 1048576;
     create_disk(c, i);
     cout << "Please input partitions number(<8): ";
     cin >> i;
     for (int j = 0; j < i; j++) {
-      cout << "Partition " << i << ": " << endl;
+      cout << "Partition " << j << ": " << endl;
       cout << "Partition name(lenth<16): ";
       cin >> pn[i];
-      cout << "Partition size(Byte): ";
+      cout << "Partition size(MB): ";
       cin >> p[j];
+      p[j] *= 1048576;
     }
     create_partitions(c, i, p, pn);
     for (int i = 0; i < 8; i++) {
@@ -78,6 +80,6 @@ int main(int argc, char** argv) {
     std::cout << cur_user << "@localhost: " << cwd_buf
               << (strcmp(cur_user, "root") == 0 ? "#" : "$") << " ";
   }
-  cout << "logout" << endl;
+  cout << endl << "logout" << endl;
   return 0;
 }
