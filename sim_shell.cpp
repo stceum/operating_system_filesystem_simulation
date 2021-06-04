@@ -211,6 +211,18 @@ int commands() {
     }
   }
 
+  else if (tmp == "help"){
+    cout << "cd 进入目录" << endl;
+    cout << "ls 显示当前目录下内容" << endl;
+    cout << "touch 新建文件" << endl;
+    cout << "mv 重命名" << endl;
+    cout << "cp 复制" << endl;
+    cout << "rm 删除" << endl;
+    cout << "wtf 写入内容" << endl;
+    cout << "cat 读取内容" << endl;
+    cout << "mkdir 新建文件夹" << endl;
+  }
+
   else if (tmp == "exit") {
     return 0;
   }
