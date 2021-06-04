@@ -13,7 +13,7 @@ int main(int argc, char** argv) {
     char c[16];
     uint32_t i;
     int p[8];
-    char* pn[8];
+    char* pn[MAX_SECTOR_NAME_LEN];
     for (int i = 0; i < 8; i++) {
       pn[i] = (char*)malloc(sizeof(char) * 16);
     }
@@ -29,7 +29,7 @@ int main(int argc, char** argv) {
     for (int j = 0; j < i; j++) {
       cout << "Partition " << j << ": " << endl;
       cout << "Partition name(lenth<16): ";
-      cin >> pn[i];
+      cin >> pn[j];
       cout << "Partition size(MB): ";
       cin >> p[j];
       p[j] *= 1048576;
