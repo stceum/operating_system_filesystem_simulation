@@ -25,7 +25,7 @@ typedef struct virtual_disk
 
 /*
  * 创建磁盘的函数
- * 该函数新建一个 disk_name 的文件作为虚拟磁盘，并分配 disk_volumn 大小的空间
+ * 该函数新建一个 disk_name 的文件作为虚拟磁盘，并分配 disk_volumn字节 大小的空间
  * 并在磁盘/文件的最前端预留数目为 MAX_PARTIOTION_NUMBER 的 partition 结构体
  * 成功返回 1/true 失败返回 0/false
  */

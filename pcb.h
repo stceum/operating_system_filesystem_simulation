@@ -9,5 +9,6 @@ typedef struct pcb
 }pcb;
 extern pcb *cur;
 extern char *cwd_buf;
+extern char cur_user[64];
 void init_pcb(pcb * p);
 #endif

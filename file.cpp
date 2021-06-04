@@ -34,7 +34,7 @@ int32_t get_free_slot_in_file_table(void) {
 }
 
 int32_t pcb_fd_install(int32_t file_table_free_slot) {
-  init_pcb(cur);
+  // init_pcb(cur);
   uint32_t local_fd_idx = 3;
   // for (int i = 0; i < MAX_FILES_OPEN_PER_PROC; i++)
   // {
